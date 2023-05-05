@@ -1,6 +1,8 @@
 import {data} from '../data';
-import './App.css';
+ 
 import Navbar  from './Navbar';
+import MovieCard from './MovieCard';
+
 
 function App() {
   return (

@@ -3,10 +3,10 @@
 class Navbar extends React.Component {
 
 
-    
+
  render() {
 
-    <div className="nav">
+   return (<div className="nav">
 
 <div className='search-container'>
     <input />
@@ -14,9 +14,9 @@ class Navbar extends React.Component {
 <button id='search-btn'>Search</button>
 </div>
       
-    </div>
+    </div>);
 
-          }
+          } 
 }
 
 export default Navbar;
