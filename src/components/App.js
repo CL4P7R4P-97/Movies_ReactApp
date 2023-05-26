@@ -2,9 +2,9 @@ import {data} from '../data';
 import React from 'react';
 import Navbar  from './Navbar';
 import MovieCard from './MovieCard';
-import { useEffect, useState } from 'react';
+import { connect } from 'react-redux';
 import { addMovies, displayFavourites } from '../actions';
-
+ 
 
 class App extends React.Component {
 
@@ -12,15 +12,11 @@ class App extends React.Component {
  
 componentDidMount(){
 
-  const { store } = this.props;
+   
 
-  store.subscribe(()=>{
+   
 
-    console.log('updated');
-    this.forceUpdate();
-  })
-
-  store.dispatch(addMovies(data));
+  this.props.dispatch(addMovies(data));
 
 }
 
@@ -30,15 +26,12 @@ componentDidMount(){
 
  isMovieFavourite=(movie)=>{
 
-  const {favourites} =  this.props.store.getState();
+  const {movies} =  this.props;
  
-  const index  = favourites.indexOf(movie);
+  const index  = movies.favourites.indexOf(movie);
 
   if(index !== -1){
-      console.log('found movie');
-       this.props.store.subscribe(()=>{
-          
-        })
+       
       return true;
      
   }   
@@ -48,7 +41,7 @@ componentDidMount(){
 
 onChangeTab=(val)=>{
 
-  this.props.store.dispatch(displayFavourites(val));
+  this.props.dispatch(displayFavourites(val));
 }
 
   // store.subscribe(()=>{ 
@@ -66,45 +59,72 @@ onChangeTab=(val)=>{
   
   
 render(){
-    
-    const { list, favourites,  showFavourites } = this.props.store.getState();
-     
-    const displayItems = showFavourites == false ? list : favourites;
+
+  
+  const { movies , search} = this.props;   // { movies: {}, search: {} }
+  // console.log(movies);  
+    const { list, favourites,  showFavourites } = movies; 
+     console.log(movies);
+    const displayItems = showFavourites ? favourites : list;
     console.log(displayItems);
-    console.log('Later state', this.props.store.getState());
+    // console.log('Later state', this.props.store.getState());
  
-   return  (<div className="App">
+  
+    return  (<div className="App">
 
-       <Navbar/>
-       <div className="main">
-        <div className="tabs">
+    <Navbar  dispatch={this.props.dispatch} search={search} />
+    <div className="main">
+     <div className="tabs">
 
-          <div className={`tab ${showFavourites ? '' : 'active-tabs' }`} onClick={()=>{this.onChangeTab(false)}}>
-                Movies</div>
+       <div className={`tab ${showFavourites ? '' : 'active-tabs' }`} onClick={()=>{this.onChangeTab(false)}}>
+             Movies</div>
 
-                <div className={`tab ${showFavourites ? 'active-tabs' : '' }`} onClick={()=>{this.onChangeTab(true)}}>
-                    Favourites
-                </div>
-        </div>
+             <div className={`tab ${showFavourites ? 'active-tabs' : '' }`} onClick={()=>{this.onChangeTab(true)}}>
+                 Favourites
+             </div>
+     </div>
 
-        <div className="list">
+     <div className="list">
 
-          { displayItems.map((movie,index)=> (
+       { displayItems.map((movie,index)=> (
 
-            <MovieCard movie={movie} key={`movies-${index}`}  dispatch={this.props.store.dispatch}   isFavourite={this.isMovieFavourite(movie)} />
+         <MovieCard movie={movie} key={`movies-${index}`}  dispatch={this.props.dispatch}   isFavourite={this.isMovieFavourite(movie)} />
 
-          ))}
+       ))}
 
-          {
-            favourites.length === 0 ? <div> Nothing to display!</div> : ''
-          }
+       {
+         favourites.length === 0 ? <div className='no-movies'> Nothing to display!</div> : ''
+       }
 
-        </div>
+     </div>
 
-       </div>
-    </div>)
+    </div>
+ </div>)
+   
 
           };
 }
 
-export default App;
+
+// class AppWrapper extends React.Component {
+//   render() {
+//     return (
+//       <StoreContext.Consumer>
+//         {(store) => <App store={store} />}
+//       </StoreContext.Consumer>
+//     );
+//   }
+// }
+
+function cb(state){
+
+  return{
+    movies: state.movies,
+    search: state.movies
+  }
+}
+
+//only connected component get refreshed when any of the state changes.
+const connectedAppComponent = connect(cb)(App);
+
+export default connectedAppComponent;
